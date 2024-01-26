@@ -29,6 +29,9 @@ import numpy as np
 import tensorflow.compat.v1 as tf
 import tree
 
+from alphafold.metfish.representation_manipulation import modify_representations
+
+
 class RunModel:
   """Container for JAX model."""
 
@@ -198,6 +201,9 @@ class RunModel:
                                        
         # callback
         if callback is not None: callback(result, r)
+
+        # modify prev representations to use in next recycling iteration
+        prev = modify_representations(prev, method='add_noise')
 
         # decide when to stop
         if result["ranking_confidence"] > self.config.model.stop_at_score:
