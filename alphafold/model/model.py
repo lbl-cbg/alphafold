@@ -29,8 +29,6 @@ import numpy as np
 import tensorflow.compat.v1 as tf
 import tree
 
-from alphafold.metfish.representation_manipulation import modify_representations
-
 
 class RunModel:
   """Container for JAX model."""
@@ -126,7 +124,8 @@ class RunModel:
               random_seed: int = 0,
               return_representations: bool = False,
               fix_single_representation: bool = True,
-              callback: Any = None) -> Mapping[str, Any]:
+              callback: Any = None,
+              manipulation_callback: Any = None) -> Mapping[str, Any]:
     """Makes a prediction by inferencing the model on the provided features.
 
     Args:
@@ -203,7 +202,8 @@ class RunModel:
         if callback is not None: callback(result, r)
 
         # modify prev representations to use in next recycling iteration
-        prev = modify_representations(prev, method='add_noise')
+        if manipulation_callback is not None: 
+          prev = manipulation_callback(prev)
 
         # decide when to stop
         if result["ranking_confidence"] > self.config.model.stop_at_score:
